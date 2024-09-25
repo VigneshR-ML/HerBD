@@ -1,0 +1,191 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Zeyada&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}    
+
+body{
+    background: #ffbce8;
+    min-height: 100vh;
+    overflow-x: hidden;
+    
+}    
+
+
+
+.parallax {
+    position: relative;
+    height: 100vh;
+    overflow: hidden;
+}    
+
+.flower {
+    position: absolute;
+    pointer-events: none;
+    transition: transform 0.1s linear;
+}    
+
+
+#musicButton {
+  position: absolute; 
+  top: 80%; 
+  left: 47%;
+  padding: 10px 20px;
+  background-color: rgba(255, 149, 244, 0.858);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  z-index: 1000; 
+}
+
+#text {
+    position: absolute; 
+    top: 50%;
+    left: 50%; 
+    transform: translate(-50%, -50%);
+    font-size: 6em;
+    color: #fff;
+    text-shadow: 2px 2px 4px rgba(255, 149, 149, 0.5);
+    z-index: 10; 
+    pointer-events: none; 
+  
+}    
+
+.parallax img{
+    position: absolute;
+    top: 100;
+    left: 100;
+    width: 10%;
+    pointer-events: none;
+   
+}    
+.sec{
+    position: relative;
+    background: #003329;
+    padding: 100px;
+}    
+
+.sec h2{
+    font-size: 3em;
+    color: #fff;
+    margin-bottom: 10px;
+}    
+
+.sec p{
+   font-size: 1em;
+   color: #fff;
+   font-weight: 300;
+}   
+
+@media only screen and (max-width: 800px) {
+    .navigation {
+        display: none; 
+        position: absolute;
+        top: 60px;
+        right: 10px;
+        background: #003329; 
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }    
+    #text{
+        position: absolute;
+        top: 50%; 
+        left: 50%;
+        font-size: 5em;
+    }    
+    .navigation.active {
+        display: flex; 
+        flex-direction: column;
+        align-items: center;
+    }    
+
+    .navigation a {
+        display: block;
+        padding: 10px 20px;
+        color: #fff;
+        text-align: center;
+        margin-bottom: 5px;
+        font-weight: 600;
+    }    
+
+    .parallax{
+        height: 100vh;
+    }    
+
+    #musicButton{
+      position: absolute;
+      top: 80%; 
+      left: 47%;
+    }
+}    
+
+
+.paper-content{
+    height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.paper {
+  background-image: url("https://images.unsplash.com/photo-1586075010923-2dd4570fb338?q=80&w=3174&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D");
+  background-size: 500px;
+  background-position: center center;
+  padding: 20px 100px;
+  
+  transform: rotateZ(-5deg);
+  box-shadow: 1px 15px 20px 0px rgba(0,0,0,0.5);
+  
+  position: absolute;
+}
+
+.paper.heart {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  padding: 0;
+  border-radius: 50%;
+}
+
+.paper.image {
+  padding: 10px;
+}
+.paper.image p {
+  font-size: 30px;
+}
+
+.paper.image img {
+  max-height: 200px;
+  width: 80%;
+  user-select: none;
+  
+}
+
+.paper.heart::after {
+  content: "";
+  background-image: url('https://cdn.pixabay.com/photo/2016/03/31/19/25/cartoon-1294994__340.png');
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-size: 150px;
+  background-position: center center;
+  background-repeat: no-repeat;
+  opacity: 0.6;
+}
+
+p {
+  font-family: 'Zeyada';
+  font-size: 50px;
+  color: rgb(0,0,100);
+  opacity: 0.75;
+  user-select: none;
+  
+}
