@@ -54,25 +54,57 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // Listen for mouse wheel events for desktop
     window.addEventListener('wheel', (event) => {
         event.preventDefault(); 
 
         scrollValue += event.deltaY * 0.1;
+        moveFlowers(scrollValue);
 
+        if (!audioSwitched) {
+            switchAudioTracks();
+        }
+
+        text.style.opacity = '0';
+    }, { passive: false });
+
+    // Listen for touch events for mobile
+    let touchStartY = 0;
+
+    window.addEventListener('touchstart', (event) => {
+        touchStartY = event.touches[0].clientY; // Capture the starting touch position
+    });
+
+    window.addEventListener('touchmove', (event) => {
+        event.preventDefault(); // Prevent scrolling the page
+
+        const touchCurrentY = event.touches[0].clientY; // Capture the current touch position
+        const deltaY = touchStartY - touchCurrentY; // Calculate the change in Y position
+        scrollValue += deltaY * 0.1; // Adjust scroll value based on the change
+        moveFlowers(scrollValue);
+
+        if (!audioSwitched) {
+            switchAudioTracks();
+        }
+
+        text.style.opacity = '0';
+    });
+
+    // Function to move flowers based on scroll value
+    function moveFlowers(scrollValue) {
         document.querySelectorAll('.flower').forEach(flower => {
             setRandomMovement(flower, scrollValue);
         });
+    }
 
-        if (!audioSwitched) {
-            audioTrack1.pause(); 
-            audioTrack2.play().catch(err => {
-                console.log("Error playing track 2: ", err);
-            }); 
-            audioSwitched = true; 
-        }
-
-        text.style.opacity = '0'; 
-    }, { passive: false }); 
+    // Function to switch audio tracks
+    function switchAudioTracks() {
+        audioTrack1.pause();
+        audioTrack2.play().catch(err => {
+            console.log("Error playing track 2: ", err);
+        });
+        audioSwitched = true;
+    }
 });
 
 let highestZ = 1;
@@ -154,6 +186,6 @@ class Paper {
 const papers = Array.from(document.querySelectorAll('.paper'));
 
 papers.forEach(paper => {
-  const p = new Paper();
-  p.init(paper);
+  const paperClass = new Paper();
+  paperClass.init(paper);
 });
