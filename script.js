@@ -5,6 +5,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const scrollSpeed = 2; 
     let scrollValue = 0; 
     let audioSwitched = false; 
+    let isTouching = false;
+    let startY = 0;
+    let currentY = 0;
 
     const audioTrack1 = document.getElementById('audioTrack1');
     const audioTrack2 = document.getElementById('audioTrack2');
@@ -54,138 +57,43 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Listen for mouse wheel events for desktop
-    window.addEventListener('wheel', (event) => {
-        event.preventDefault(); 
-
-        scrollValue += event.deltaY * 0.1;
-        moveFlowers(scrollValue);
-
-        if (!audioSwitched) {
-            switchAudioTracks();
-        }
-
-        text.style.opacity = '0';
-    }, { passive: false });
-
-    // Listen for touch events for mobile
-    let touchStartY = 0;
-
-    window.addEventListener('touchstart', (event) => {
-        touchStartY = event.touches[0].clientY; // Capture the starting touch position
-    });
-
-    window.addEventListener('touchmove', (event) => {
-        event.preventDefault(); // Prevent scrolling the page
-
-        const touchCurrentY = event.touches[0].clientY; // Capture the current touch position
-        const deltaY = touchStartY - touchCurrentY; // Calculate the change in Y position
-        scrollValue += deltaY * 0.1; // Adjust scroll value based on the change
-        moveFlowers(scrollValue);
-
-        if (!audioSwitched) {
-            switchAudioTracks();
-        }
-
-        text.style.opacity = '0';
-    });
-
-    // Function to move flowers based on scroll value
-    function moveFlowers(scrollValue) {
+    function handleScroll(deltaY) {
+        scrollValue += deltaY * 0.1;
         document.querySelectorAll('.flower').forEach(flower => {
             setRandomMovement(flower, scrollValue);
         });
-    }
 
-    // Function to switch audio tracks
-    function switchAudioTracks() {
-        audioTrack1.pause();
-        audioTrack2.play().catch(err => {
-            console.log("Error playing track 2: ", err);
-        });
-        audioSwitched = true;
-    }
-});
-
-let highestZ = 1;
-
-class Paper {
-  holdingPaper = false;
-  mouseTouchX = 0;
-  mouseTouchY = 0;
-  mouseX = 0;
-  mouseY = 0;
-  prevMouseX = 0;
-  prevMouseY = 0;
-  velX = 0;
-  velY = 0;
-  rotation = Math.random() * 30 - 15;
-  currentPaperX = 0;
-  currentPaperY = 0;
-  rotating = false;
-
-  init(paper) {
-    document.addEventListener('mousemove', (e) => {
-      if(!this.rotating) {
-        this.mouseX = e.clientX;
-        this.mouseY = e.clientY;
-        
-        this.velX = this.mouseX - this.prevMouseX;
-        this.velY = this.mouseY - this.prevMouseY;
-      }
-        
-      const dirX = e.clientX - this.mouseTouchX;
-      const dirY = e.clientY - this.mouseTouchY;
-      const dirLength = Math.sqrt(dirX*dirX+dirY*dirY);
-      const dirNormalizedX = dirX / dirLength;
-      const dirNormalizedY = dirY / dirLength;
-
-      const angle = Math.atan2(dirNormalizedY, dirNormalizedX);
-      let degrees = 180 * angle / Math.PI;
-      degrees = (360 + Math.round(degrees)) % 360;
-      if(this.rotating) {
-        this.rotation = degrees;
-      }
-
-      if(this.holdingPaper) {
-        if(!this.rotating) {
-          this.currentPaperX += this.velX;
-          this.currentPaperY += this.velY;
+        if (!audioSwitched) {
+            audioTrack1.pause(); 
+            audioTrack2.play().catch(err => {
+                console.log("Error playing track 2: ", err);
+            }); 
+            audioSwitched = true; 
         }
-        this.prevMouseX = this.mouseX;
-        this.prevMouseY = this.mouseY;
 
-        paper.style.transform = `translateX(${this.currentPaperX}px) translateY(${this.currentPaperY}px) rotateZ(${this.rotation}deg)`;
-      }
-    })
+        text.style.opacity = '0'; 
+    }
 
-    paper.addEventListener('mousedown', (e) => {
-      if(this.holdingPaper) return; 
-      this.holdingPaper = true;
-      
-      paper.style.zIndex = highestZ;
-      highestZ += 1;
-      
-      if(e.button === 0) {
-        this.mouseTouchX = this.mouseX;
-        this.mouseTouchY = this.mouseY;
-        this.prevMouseX = this.mouseX;
-        this.prevMouseY = this.mouseY;
-      }
-      if(e.button === 2) {
-        this.rotating = true;
-      }
+    window.addEventListener('wheel', (event) => {
+        event.preventDefault();
+        handleScroll(event.deltaY);
+    }, { passive: false });
+
+    window.addEventListener('touchstart', (event) => {
+        isTouching = true;
+        startY = event.touches[0].clientY;
     });
-    window.addEventListener('mouseup', () => {
-      this.holdingPaper = false;
-      this.rotating = false;
+
+    window.addEventListener('touchmove', (event) => {
+        if (isTouching) {
+            currentY = event.touches[0].clientY;
+            const deltaY = startY - currentY;
+            startY = currentY; 
+            handleScroll(deltaY);
+        }
     });
-  }
-}
 
-const papers = Array.from(document.querySelectorAll('.paper'));
-
-papers.forEach(paper => {
-  const paperClass = new Paper();
-  paperClass.init(paper);
+    window.addEventListener('touchend', () => {
+        isTouching = false;
+    });
 });
