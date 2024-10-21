@@ -5,9 +5,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const scrollSpeed = 2; 
     let scrollValue = 0; 
     let audioSwitched = false; 
-    let isTouching = false;
-    let startY = 0;
-    let currentY = 0;
 
     const audioTrack1 = document.getElementById('audioTrack1');
     const audioTrack2 = document.getElementById('audioTrack2');
@@ -20,13 +17,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const direction = flower.dataset.direction;
 
         if (direction === 'top-left') {
-            flower.style.transform = `translate(${value * -scrollSpeed}px, ${value * -scrollSpeed}px)`;
+            flower.style.transform = translate(${value * -scrollSpeed}px, ${value * -scrollSpeed}px);
         } else if (direction === 'top-right') {
-            flower.style.transform = `translate(${value * scrollSpeed}px, ${value * -scrollSpeed}px)`;
+            flower.style.transform = translate(${value * scrollSpeed}px, ${value * -scrollSpeed}px);
         } else if (direction === 'bottom-left') {
-            flower.style.transform = `translate(${value * -scrollSpeed}px, ${value * scrollSpeed}px)`;
+            flower.style.transform = translate(${value * -scrollSpeed}px, ${value * scrollSpeed}px);
         } else if (direction === 'bottom-right') {
-            flower.style.transform = `translate(${value * scrollSpeed}px, ${value * scrollSpeed}px)`;
+            flower.style.transform = translate(${value * scrollSpeed}px, ${value * scrollSpeed}px);
         }
     }
 
@@ -36,11 +33,11 @@ document.addEventListener('DOMContentLoaded', () => {
         flower.classList.add('flower');
 
         const randomSize = getRandomInt(50, 250);
-        flower.style.width = `${randomSize}px`;
-        flower.style.height = `${randomSize}px`;
+        flower.style.width = ${randomSize}px;
+        flower.style.height = ${randomSize}px;
 
-        flower.style.top = `${getRandomInt(-100, window.innerHeight)}px`;
-        flower.style.left = `${getRandomInt(-100, window.innerWidth)}px`;
+        flower.style.top = ${getRandomInt(-100, window.innerHeight)}px;
+        flower.style.left = ${getRandomInt(-100, window.innerWidth)}px;
 
         const directions = ['top-left', 'top-right', 'bottom-left', 'bottom-right'];
         flower.dataset.direction = directions[getRandomInt(0, directions.length - 1)];
@@ -57,16 +54,15 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    function handleScroll(deltaY) {
-        scrollValue += deltaY * 0.1;
+    window.addEventListener('wheel', (event) => {
+        event.preventDefault(); 
+
+        scrollValue += event.deltaY * 0.1;
+
         document.querySelectorAll('.flower').forEach(flower => {
             setRandomMovement(flower, scrollValue);
         });
-        switchAudio();
-        text.style.opacity = '0'; 
-    }
 
-    function switchAudio() {
         if (!audioSwitched) {
             audioTrack1.pause(); 
             audioTrack2.play().catch(err => {
@@ -74,28 +70,90 @@ document.addEventListener('DOMContentLoaded', () => {
             }); 
             audioSwitched = true; 
         }
-    }
 
-    window.addEventListener('wheel', (event) => {
-        event.preventDefault();
-        handleScroll(event.deltaY);
-    }, { passive: false });
+        text.style.opacity = '0'; 
+    }, { passive: false }); 
+});
 
-    window.addEventListener('touchstart', (event) => {
-        isTouching = true;
-        startY = event.touches[0].clientY;
-    });
+let highestZ = 1;
 
-    window.addEventListener('touchmove', (event) => {
-        if (isTouching) {
-            currentY = event.touches[0].clientY;
-            const deltaY = startY - currentY;
-            startY = currentY; 
-            handleScroll(deltaY);
+class Paper {
+  holdingPaper = false;
+  mouseTouchX = 0;
+  mouseTouchY = 0;
+  mouseX = 0;
+  mouseY = 0;
+  prevMouseX = 0;
+  prevMouseY = 0;
+  velX = 0;
+  velY = 0;
+  rotation = Math.random() * 30 - 15;
+  currentPaperX = 0;
+  currentPaperY = 0;
+  rotating = false;
+
+  init(paper) {
+    document.addEventListener('mousemove', (e) => {
+      if(!this.rotating) {
+        this.mouseX = e.clientX;
+        this.mouseY = e.clientY;
+        
+        this.velX = this.mouseX - this.prevMouseX;
+        this.velY = this.mouseY - this.prevMouseY;
+      }
+        
+      const dirX = e.clientX - this.mouseTouchX;
+      const dirY = e.clientY - this.mouseTouchY;
+      const dirLength = Math.sqrt(dirX*dirX+dirY*dirY);
+      const dirNormalizedX = dirX / dirLength;
+      const dirNormalizedY = dirY / dirLength;
+
+      const angle = Math.atan2(dirNormalizedY, dirNormalizedX);
+      let degrees = 180 * angle / Math.PI;
+      degrees = (360 + Math.round(degrees)) % 360;
+      if(this.rotating) {
+        this.rotation = degrees;
+      }
+
+      if(this.holdingPaper) {
+        if(!this.rotating) {
+          this.currentPaperX += this.velX;
+          this.currentPaperY += this.velY;
         }
-    });
+        this.prevMouseX = this.mouseX;
+        this.prevMouseY = this.mouseY;
 
-    window.addEventListener('touchend', () => {
-        isTouching = false;
+        paper.style.transform = translateX(${this.currentPaperX}px) translateY(${this.currentPaperY}px) rotateZ(${this.rotation}deg);
+      }
+    })
+
+    paper.addEventListener('mousedown', (e) => {
+      if(this.holdingPaper) return; 
+      this.holdingPaper = true;
+      
+      paper.style.zIndex = highestZ;
+      highestZ += 1;
+      
+      if(e.button === 0) {
+        this.mouseTouchX = this.mouseX;
+        this.mouseTouchY = this.mouseY;
+        this.prevMouseX = this.mouseX;
+        this.prevMouseY = this.mouseY;
+      }
+      if(e.button === 2) {
+        this.rotating = true;
+      }
     });
+    window.addEventListener('mouseup', () => {
+      this.holdingPaper = false;
+      this.rotating = false;
+    });
+  }
+}
+
+const papers = Array.from(document.querySelectorAll('.paper'));
+
+papers.forEach(paper => {
+  const p = new Paper();
+  p.init(paper);
 });
