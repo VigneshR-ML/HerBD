@@ -62,7 +62,11 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.flower').forEach(flower => {
             setRandomMovement(flower, scrollValue);
         });
+        switchAudio();
+        text.style.opacity = '0'; 
+    }
 
+    function switchAudio() {
         if (!audioSwitched) {
             audioTrack1.pause(); 
             audioTrack2.play().catch(err => {
@@ -70,8 +74,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }); 
             audioSwitched = true; 
         }
-
-        text.style.opacity = '0'; 
     }
 
     window.addEventListener('wheel', (event) => {
