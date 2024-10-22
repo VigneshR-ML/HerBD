@@ -17,13 +17,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const direction = flower.dataset.direction;
 
         if (direction === 'top-left') {
-            flower.style.transform = translate(${value * -scrollSpeed}px, ${value * -scrollSpeed}px);
+            flower.style.transform = `translate(${value * -scrollSpeed}px, ${value * -scrollSpeed}px)`;
         } else if (direction === 'top-right') {
-            flower.style.transform = translate(${value * scrollSpeed}px, ${value * -scrollSpeed}px);
+            flower.style.transform = `translate(${value * scrollSpeed}px, ${value * -scrollSpeed}px)`;
         } else if (direction === 'bottom-left') {
-            flower.style.transform = translate(${value * -scrollSpeed}px, ${value * scrollSpeed}px);
+            flower.style.transform = `translate(${value * -scrollSpeed}px, ${value * scrollSpeed}px)`;
         } else if (direction === 'bottom-right') {
-            flower.style.transform = translate(${value * scrollSpeed}px, ${value * scrollSpeed}px);
+            flower.style.transform = `translate(${value * scrollSpeed}px, ${value * scrollSpeed}px)`;
         }
     }
 
@@ -33,11 +33,11 @@ document.addEventListener('DOMContentLoaded', () => {
         flower.classList.add('flower');
 
         const randomSize = getRandomInt(50, 250);
-        flower.style.width = ${randomSize}px;
-        flower.style.height = ${randomSize}px;
+        flower.style.width = `${randomSize}px`;
+        flower.style.height = `${randomSize}px`;
 
-        flower.style.top = ${getRandomInt(-100, window.innerHeight)}px;
-        flower.style.left = ${getRandomInt(-100, window.innerWidth)}px;
+        flower.style.top = `${getRandomInt(-100, window.innerHeight)}px`;
+        flower.style.left = `${getRandomInt(-100, window.innerWidth)}px`;
 
         const directions = ['top-left', 'top-right', 'bottom-left', 'bottom-right'];
         flower.dataset.direction = directions[getRandomInt(0, directions.length - 1)];
@@ -123,7 +123,7 @@ class Paper {
         this.prevMouseX = this.mouseX;
         this.prevMouseY = this.mouseY;
 
-        paper.style.transform = translateX(${this.currentPaperX}px) translateY(${this.currentPaperY}px) rotateZ(${this.rotation}deg);
+        paper.style.transform = `translateX(${this.currentPaperX}px) translateY(${this.currentPaperY}px) rotateZ(${this.rotation}deg)`;
       }
     })
 
