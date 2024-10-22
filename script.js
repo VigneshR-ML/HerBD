@@ -6,9 +6,16 @@ document.addEventListener('DOMContentLoaded', () => {
     let scrollValue = 0; 
     let audioSwitched = false; 
     let touchStartY = 0;
+    let lastTouchY = 0;
+    let touchScrollAccumulator = 0;
+    const touchSensitivity = 2.5; // Adjust this value to make scrolling more or less sensitive
 
     const audioTrack1 = document.getElementById('audioTrack1');
     const audioTrack2 = document.getElementById('audioTrack2');
+
+    // Ensure audio is ready to play
+    audioTrack1.load();
+    audioTrack2.load();
 
     function getRandomInt(min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -28,21 +35,39 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function handleScroll(deltaY) {
-        scrollValue += deltaY * 0.1;
+    async function switchAudio() {
+        if (!audioSwitched) {
+            try {
+                await audioTrack1.pause();
+                audioTrack1.currentTime = 0;
+                await audioTrack2.play();
+                audioSwitched = true;
+            } catch (err) {
+                console.log("Error switching audio tracks: ", err);
+            }
+        }
+    }
 
-        document.querySelectorAll('.flower').forEach(flower => {
-            setRandomMovement(flower, scrollValue);
+    function handleScroll(deltaY) {
+        // Accumulate small touch movements
+        touchScrollAccumulator += deltaY;
+
+        // Apply smoothing to the scroll value
+        const smoothedDelta = touchScrollAccumulator * 0.1;
+        scrollValue += smoothedDelta;
+
+        // Reset accumulator after applying
+        touchScrollAccumulator = 0;
+
+        // Smoothly update flower positions using requestAnimationFrame
+        requestAnimationFrame(() => {
+            document.querySelectorAll('.flower').forEach(flower => {
+                setRandomMovement(flower, scrollValue);
+            });
         });
 
-        if (!audioSwitched) {
-            audioTrack1.pause(); 
-            audioTrack2.play().catch(err => {
-                console.log("Error playing track 2: ", err);
-            }); 
-            audioSwitched = true; 
-        }
-
+        // Switch audio and fade text
+        switchAudio();
         text.style.opacity = '0';
     }
 
@@ -65,33 +90,51 @@ document.addEventListener('DOMContentLoaded', () => {
         container.appendChild(flower);
     }
 
-    // Music button event
-    document.getElementById('musicButton').addEventListener('click', () => {
-        audioTrack1.play().then(() => {
+    // Music button event with improved audio handling
+    document.getElementById('musicButton').addEventListener('click', async () => {
+        try {
+            await audioTrack1.play();
             console.log("audioTrack1 is playing");
-            document.getElementById('musicButton').style.display = 'none'; 
-        }).catch(err => {
+            document.getElementById('musicButton').style.display = 'none';
+        } catch (err) {
             console.log("Unable to play audioTrack1: ", err);
-        });
+        }
     });
 
-    // Mouse wheel event for desktop
+    // Mouse wheel event for desktop with smooth scrolling
+    let wheelTimeout;
     window.addEventListener('wheel', (event) => {
         event.preventDefault();
+        
+        clearTimeout(wheelTimeout);
         handleScroll(event.deltaY);
+        
+        // Add a small delay to smooth out rapid wheel events
+        wheelTimeout = setTimeout(() => {
+            touchScrollAccumulator = 0;
+        }, 50);
     }, { passive: false });
 
-    // Touch events for mobile
+    // Improved touch events for mobile
     window.addEventListener('touchstart', (event) => {
+        event.preventDefault();
         touchStartY = event.touches[0].clientY;
+        lastTouchY = touchStartY;
+        touchScrollAccumulator = 0;
     }, { passive: false });
 
     window.addEventListener('touchmove', (event) => {
         event.preventDefault();
         const touchCurrentY = event.touches[0].clientY;
-        const deltaY = touchStartY - touchCurrentY;
-        touchStartY = touchCurrentY;
+        const deltaY = (lastTouchY - touchCurrentY) * touchSensitivity;
+        lastTouchY = touchCurrentY;
+        
         handleScroll(deltaY);
+    }, { passive: false });
+
+    // Add touch end event to reset accumulator
+    window.addEventListener('touchend', () => {
+        touchScrollAccumulator = 0;
     }, { passive: false });
 });
 
